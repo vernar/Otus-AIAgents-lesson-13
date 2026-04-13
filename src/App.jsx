@@ -1,11 +1,31 @@
+import { HashRouter, Routes, Route } from 'react-router-dom';
+import { LmContext, useLmModels } from './hooks/useLmModels.js';
+import NavBar from './components/NavBar.jsx';
+import GraphPage from './pages/GraphPage.jsx';
+import ArticleListPage from './pages/ArticleListPage.jsx';
+import AddArticlePage from './pages/AddArticlePage.jsx';
+import BulkAddPage from './pages/BulkAddPage.jsx';
+import ArticleDetailPage from './pages/ArticleDetailPage.jsx';
+
 export default function App() {
+  const lm = useLmModels();
+
   return (
-    <main style={{ fontFamily: 'system-ui', padding: '2rem', maxWidth: 640 }}>
-      <h1>Knowledge Graph News</h1>
-      <p>Фаза 1: foundation — Vite + Express + SQLite готовы. REST API в Фазе 2.</p>
-      <p>
-        <a href="/docs.html">Документация (CJM)</a>
-      </p>
-    </main>
+    <LmContext.Provider value={lm}>
+      <HashRouter>
+        <div style={{ display: 'flex', height: '100vh', background: '#0a0f1c', fontFamily: 'Inter, system-ui, sans-serif' }}>
+          <NavBar />
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <Routes>
+              <Route path="/" element={<GraphPage />} />
+              <Route path="/list" element={<ArticleListPage />} />
+              <Route path="/add" element={<AddArticlePage />} />
+              <Route path="/bulk" element={<BulkAddPage />} />
+              <Route path="/articles/:id" element={<ArticleDetailPage />} />
+            </Routes>
+          </div>
+        </div>
+      </HashRouter>
+    </LmContext.Provider>
   );
 }

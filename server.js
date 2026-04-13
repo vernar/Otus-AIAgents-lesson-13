@@ -4,6 +4,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import { initDb, getDb } from './database/init.js';
+import articlesRouter from './server/routes/articles.js';
+import conceptsRouter from './server/routes/concepts.js';
+import graphRouter from './server/routes/graph.js';
+import lmRouter from './server/routes/lm.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = __dirname;
@@ -16,7 +20,6 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
 
-/** Confirms server and DB bootstrap (Фаза 1); REST API comes in Фаза 2. */
 app.get('/api/health', (req, res) => {
   try {
     getDb().prepare('SELECT 1').get();
@@ -25,6 +28,11 @@ app.get('/api/health', (req, res) => {
     res.status(500).json({ ok: false, db: false, error: e.message });
   }
 });
+
+app.use('/api/articles', articlesRouter);
+app.use('/api/concepts', conceptsRouter);
+app.use('/api/graph', graphRouter);
+app.use('/api/lm', lmRouter);
 
 if (isProd) {
   const distPath = path.join(rootDir, 'dist');
@@ -38,8 +46,5 @@ if (isProd) {
 }
 
 app.listen(PORT, () => {
-  console.log(`Server http://localhost:${PORT} (API + ${isProd ? 'static dist' : 'dev: use Vite on :5173'})`);
-  if (isProd && !fs.existsSync(path.join(rootDir, 'dist'))) {
-    console.warn('Production: run `npm run build` before `npm start`.');
-  }
+  console.log(`Server http://localhost:${PORT}`);
 });
